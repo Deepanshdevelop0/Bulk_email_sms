@@ -54,7 +54,7 @@ def close_frame():
 l = tk.Label(frame , text = "Please Select an Option To Send Email: " , background="blue")
 l.place(x=150 , y=150)
 
-options  = ["Upload CSV File" ,  "Enter Email Addresses Manually" , "Show Recent Details"]
+options  = ["Upload CSV File" ,  "Enter Email Addresses Manually" , "Schedule Email" ,  "Show Recent Details"]
 var = StringVar(frame)
 var.set("Please Select An Option")
 
