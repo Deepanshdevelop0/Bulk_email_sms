@@ -1,4 +1,5 @@
 create database email_client;
+use email_client;
 create table admin_details(email_address varchar(255) , password varchar(255));
 create table bulkemail_attachment(attachment mediumblob, id int);
 create table bulkemail_csvupload(email_file mediumblob, id int);
