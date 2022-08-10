@@ -139,4 +139,5 @@ check_button.place(width = 100 , x = 660 , y = 392)
 
 
 frame.protocol('WM_DELETE_WINDOW' , close_frame)
+frame.resizable(False, False)
 frame.mainloop()

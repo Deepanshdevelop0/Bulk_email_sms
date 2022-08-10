@@ -347,5 +347,5 @@ add_attachment.place(height = 30 , width = 30 , x=870 , y=465)
 
 
 frame.protocol("WM_DELETE_WINDOW" , close_frame)
-
+frame.resizable(False, False)
 frame.mainloop()

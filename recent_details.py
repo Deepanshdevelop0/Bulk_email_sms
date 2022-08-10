@@ -149,5 +149,6 @@ tree.heading('Sent_To' , text = "Sent_To")
 # show_details = tk.Text(frame , background = "pink" , foreground = "red")
 # show_details.place(height=200 , width=800 , x=100 , y=150)
 
+frame.resizable(False, False)
 frame.mainloop()
 

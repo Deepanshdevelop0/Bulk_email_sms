@@ -435,4 +435,5 @@ status_lbl1 = tk.Label(frame, bd=5)
 status_lbl1.place(width=300, x=350, y=610)
 
 frame.protocol('WM_DELETE_WINDOW' , close_frame)
+frame.resizable(False, False)
 frame.mainloop()

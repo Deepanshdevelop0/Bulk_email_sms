@@ -143,4 +143,5 @@ refresh_btn = tk.Button(show , text = "REFRESH" , bd = 3 , command = refresh)
 refresh_btn.place(width = 150 , x=350 , y=460)
 text_box.configure(state = "disabled")
 
+show.resizable(False, False)
 show.mainloop()
