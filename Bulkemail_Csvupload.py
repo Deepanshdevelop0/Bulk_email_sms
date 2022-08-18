@@ -1,9 +1,9 @@
+import encodings
 from errno import errorcode
 from http import HTTPStatus
 import tkinter as tk
-from flask import Response
 import pandas as pd
-from tkinter import Canvas, filedialog as fd
+from tkinter import DISABLED, END, Canvas, filedialog as fd
 from tkinter import messagebox
 import smtplib,ssl
 import time
@@ -15,11 +15,32 @@ from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
 import speech_recognition as sr
+from tktimepicker import AnalogPicker, AnalogThemes
+
+
 
 frame = tk.Tk()
-frame.geometry('1000x1000')
-frame.config(background="slateblue")
+frame.geometry('1000x600')
+background_photo = tk.PhotoImage(file = f"background_csvupload.png")
+frame.config(bg = "#9f3ae7")
 frame.title("Bulk Email Client")
+
+canvas = Canvas(
+    frame,
+    bg = "#9f3ae7",
+    height = 600,
+    width = 1000,
+    bd = 0,
+    highlightthickness = 0,
+    relief = "ridge")
+canvas.place(x = 0, y = 0)
+
+background_img = tk.PhotoImage(file = f"background_csvupload.png")
+background = canvas.create_image(
+    500.0, 300.0,
+    image=background_img)
+
+
 frame.focus_force()
 frame.pack_propagate(0)
 
@@ -274,6 +295,7 @@ def recent_details():
 global email_address
 email_address = []
 def send_msg():
+    
     message = enter_msg_text.get('1.0', 'end')
     
     sql = "SELECT email_address FROM admin_details"
@@ -308,39 +330,83 @@ def send_msg():
         context = ssl.create_default_context()
         # Login and Send Email
         with smtplib.SMTP_SSL(server, port, context=context) as Server:
+            
+            # # new changes
+            # import datetime as dt
+            # import time
+
+
+
+
+
+
+
+
+
+
+# old unchanged
             Server.login(sender_email, password)
+
+
+# unstaged changes
+            # year = int(input("Enter Year:"))
+            # month = int(input("Enter Month:"))
+            # date = int(input("Enter date:"))
+            # hour = int(input("Enter hour:"))
+            # minute = int(input("Enter minute:"))
+            # send_time = dt.datetime(year , month , date , hour , minute , 0)
+            # time.sleep(send_time.timestamp() - time.time())
+            import re
+            wrong_mail ={}
+            valid = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9._]+[A-Z][a-z]{2,}\b'
             for addresses in email_list:
-                try:
-                    Server.sendmail(sender_email, addresses, text)
-                
-                except smtplib.SMTPResponseException:
-                    error_code = smtplib.SMTPResponseException.smtp_code
-                    error_message = smtplib.SMTPResponseException.smtp_error
-                    if (error_code==422):
-                        print("Recipient Mailbox Full")
-                    elif(error_code==431):
-                        print ("Server out of space")
-                    elif(error_code==447):
-                        print("Timeout. Try reducing number of recipients")
-                    elif(error_code==510 or error_code==511):
-                        print("One of the addresses in your TO, CC or BBC line doesn't exist. Check again your recipients' accounts and correct any possible misspelling.")
-                    elif(error_code==512):
-                        print("Check again all your recipients' addresses: there will likely be an error in a domain name (like mail@domain.coom instead of mail@domain.com)")
-                    elif(error_code==541 or error_code==554):
-                        print("Your message has been detected and labeled as spam. You must ask the recipient to whitelist you")
-                    elif(error_code==550):
-                        print("Though it can be returned also by the recipient's firewall (or when the incoming server is down), the great majority of errors 550 simply tell that the recipient email address doesn't exist. You should contact the recipient otherwise and get the right address.")
-                    elif(error_code==553):
-                        print("Check all the addresses in the TO, CC and BCC field. There should be an error or a misspelling somewhere.")
-                    else:
-                        print(error_code+": "+error_message)
-                except smtplib.SMTPRecipientsRefused:
-                    print("Error wit recipient mail address " + addresses)
+                if (re.fullmatch(valid,addresses)) == False:
+                    wrong_mail.append(addresses)
+                    email_list.remove(addresses)
+
+            df = pd.DataFrame(wrong_mail)
+            if (len(wrong_mail) > 0):
+                pd.to_csv(df , index = True  , encoding = 'utf-8' )
+            
+            
+            
+            
+            
+            Server.sendmail(sender_email, email_list, text)
+            # for addresses in email_list:
+            #     try:
+                # except smtplib.SMTPSenderRefused:
+                    # print("Error with recipient mail addresses " + addresses)
+
+                # except smtplib.SMTPResponseException:
+                #     error_code = smtplib.SMTPResponseException.smtp_code
+                #     error_message = smtplib.SMTPResponseException.smtp_error
+                #     if (error_code==422):
+                #         print("Recipient Mailbox Full")
+                #     elif(error_code==431):
+                #         print ("Server out of space")
+                #     elif(error_code==447):
+                #         print("Timeout. Try reducing number of recipients")
+                #     elif(error_code==510 or error_code==511):
+                #         print("One of the addresses in your TO, CC or BBC line doesn't exist. Check again your recipients' accounts and correct any possible misspelling.")
+                #     elif(error_code==512):
+                #         print("Check again all your recipients' addresses: there will likely be an error in a domain name (like mail@domain.coom instead of mail@domain.com)")
+                #     elif(error_code==541 or error_code==554):
+                #         print("Your message has been detected and labeled as spam. You must ask the recipient to whitelist you")
+                #     elif(error_code==550):
+                #         print("Though it can be returned also by the recipient's firewall (or when the incoming server is down), the great majority of errors 550 simply tell that the recipient email address doesn't exist. You should contact the recipient otherwise and get the right address.")
+                #     elif(error_code==553):
+                #         print("Check all the addresses in the TO, CC and BCC field. There should be an error or a misspelling somewhere.")
+                #     else:
+                #         print(error_code+": "+error_message)
+                # except smtplib.SMTPRecipientsRefused:
+                #     print("Error wit recipient mail address " + addresses)
 
                 
                 
             
-            status_lbl1.config(text="Email Sent Successfully!")
+            # status_lbl1.config(text="Email Sent Successfully!")
+            messagebox.showinfo(title = "STATUS" , message = "Email Sent Successfully!")
             
         index()
         recent_details()
@@ -352,8 +418,8 @@ def send_msg():
 
 def back():
     time.sleep(2)
-    frame.destroy()
     import Emailmainframe
+    frame.destroy()
 
 def close_frame():
     
@@ -374,22 +440,25 @@ def close_frame():
 def voice_recognition():
     
     lang = ""
-    lan = input("Enter language to Recognize:")
-    lan1 = messagebox.QUESTION()
+    lan = input("Enter language to Recognize:").lower()
+    # lan1 = messagebox.QUESTION("hindi or english")
     languages = ['en-Us' , 'hi-IN']
-    if (lan == "English"):
+    if (lan == "english"):
         lang = languages[0]
-    elif (lan == "Hindi"):
+    elif (lan == "hindi"):
         lang = languages[1]
     else:
         print("Language not Supported!")
-    if (lan == "English" or lan == "Hindi"):
+    if (lan == "english" or lan == "hindi"):
             recognizer = sr.Recognizer()
             with sr.Microphone() as source:
                 print('Clearing background noise..')
-                recognizer.adjust_for_ambient_noise(source,duration=1)
+                recognizer.adjust_for_ambient_noise(source,duration=2)
                 print("waiting for your message...")
-                recordedaudio=recognizer.listen(source)
+                recordedaudio = ""
+                # while(recordedaudio == "stop"):
+                while(recognizer.listen(source) == 'stop'):
+                    recordedaudio=recognizer.listen(source)
                 print('Done recording..!')
                 print(recordedaudio)
             try:
@@ -401,38 +470,43 @@ def voice_recognition():
             except Exception as ex:
                 print(ex)
 
+
+
 l = tk.Label(
-    frame, text="Attach Excel File To\n Import Email Addresses", background="blue")
-l.place(width=200, x=50, y=100)
-attach_file = tk.Button(frame, text="Attach Files",
-                        bd=2, fg="blue", command=attach_file)
-attach_file.place(width=200, x=350, y=100)
-enter_subject_label = tk.Label(frame , text = "Enter Subject" , background="blue")
-enter_subject_label.place(width=200 , x=50 , y=200)
-enter_subject_entry = tk.Entry(frame , bd=2)
-enter_subject_entry.place(height=30 , width=600 , x=350 , y=200)
-enter_msg_label = tk.Label(frame, text="Enter Message", background="blue")
-enter_msg_label.place(width=200, x=50, y=250)
-enter_msg_text = tk.Text(frame, bd=2)
-enter_msg_text.place(height=200, width=600, x=350, y=250)
+    frame, text="Attach Excel File To\n Import Email Addresses",font = ("Times New Roman" , 8 ))
+l.place(width=140, x=320, y=230)
+attach_file = tk.Button(frame, text="Choose Files",
+                        bd=2, fg="black", background="#b90ee3" , command=attach_file)
+attach_file.place(width=140, x=320, y=310)
+
+enter_subject_label = tk.Label(frame , text = "Enter\nSubject:" )
+enter_subject_label.place(width=50 , x=510 , y=160)
+enter_subject_entry = tk.Entry(frame , bd=2 , bg = "#C5B4E3")
+enter_subject_entry.insert(0 , "Subject")
+enter_subject_entry.place(height=40 , width=350 , x=580 , y=160)
+enter_msg_label = tk.Label(frame, text="Enter\nMessage")
+enter_msg_label.place(width=50, x=510, y=230)
+enter_msg_text = tk.Text(frame, bd=2 , bg = "#C5B4E3")
+enter_msg_text.insert(END , "Message")
+enter_msg_text.place(height=200, width=350, x=580, y=230)
 voice_rec_photo = tk.PhotoImage(file = f"voice_rec.png")
-voice_rec_btn = tk.Button(frame , background = "red" , image = voice_rec_photo , bd = 2 )
-voice_rec_btn.place(height = 30 , width = 30 , x = 880 , y = 420)
+voice_rec_btn = tk.Button(frame , background = "purple" , command = voice_recognition , image = voice_rec_photo , bd = 2 )
+voice_rec_btn.place(height = 30 , width = 30 , x = 860 , y = 430)
 pause_btn_photo = tk.PhotoImage(file = f"stop_btn1.png")
-pause_btn = tk.Button(frame , background = "red" , image = pause_btn_photo , bd = 2)
-pause_btn.place(height = 30 , width = 30 , x = 920 , y = 420)
+# pause_btn = tk.Button(frame , background = "red" , image = pause_btn_photo , bd = 2)
+# pause_btn.place(height = 30 , width = 30 , x = 920 , y = 420)
 photo = tk.PhotoImage(file=f"attachment11.png")
-attach_file_btn = tk.Button(frame, background="red",
+attach_file_btn = tk.Button(frame, background="purple",
                             image=photo , command=attach_attachment)
-attach_file_btn.place(height=30, width=30, x=920, y=450)
-send_btn = tk.Button(frame, text="SEND", bd=2, command=send_msg)
-send_btn.place(width=150, x=350, y=510)
-back_btn = tk.Button(frame, text="BACK", bd=2, command=back)
-back_btn.place(width=150, x=550, y=510)
-status_lbl = tk.Label(frame, text="STATUS", background="blue")
-status_lbl.place(width=200, x=50, y=610)
-status_lbl1 = tk.Label(frame, bd=5)
-status_lbl1.place(width=300, x=350, y=610)
+attach_file_btn.place(height=30, width=30, x=897, y=430)
+send_btn = tk.Button(frame, text="SEND", bd=2, command=send_msg , bg = "#b90ee3")
+send_btn.place(width=100, x=620, y=480)
+back_btn = tk.Button(frame, text="BACK", bd=2, command=back , bg = "#b90ee3")
+back_btn.place(width=100, x=750, y=480)
+# status_lbl = tk.Label(frame, text="STATUS", background="blue")
+# status_lbl.place(width=200, x=50, y=610)
+# status_lbl1 = tk.Label(frame, bd=5)
+# status_lbl1.place(width=300, x=350, y=610)
 
 frame.protocol('WM_DELETE_WINDOW' , close_frame)
 frame.resizable(False, False)
