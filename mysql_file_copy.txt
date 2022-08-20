@@ -1,0 +1,8 @@
+create database email_client;
+create table admin_details(email_address varchar(255) , password varchar(255));
+create table bulkemail_attachment(attachment mediumblob, id int);
+create table bulkemail_csvupload(email_file mediumblob, id int);
+create table bulkemail_entermanually(id int not null primary key, email_list varchar(255), date date, time time);
+create table recent_details(id int ,admin_email varchar(255), date date, time time , sent_to varchar(255));
+create table current_mailhistory(id int(8) not null , admin_email varchar(255) , date date , time time , sent_to varchar(255) , sent_successfully varchar(255));
+
